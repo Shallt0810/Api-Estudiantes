@@ -1,7 +1,8 @@
 import sys
 import os
 
-# Esto asegura que Python encuentre la carpeta 'app'
+# Ensure the 'app' directory is in the Python path to avoid ModuleNotFoundError
+# This allows running the script from any location within the project
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from app.database.db_config import engine, Base
@@ -10,20 +11,28 @@ from sqlalchemy.orm import sessionmaker
 from datetime import date
 
 def run_init():
-    print("Iniciando creación de base de datos...")
+    """
+    Initializes the database by creating tables and populating them 
+    with initial test data (seeding).
+    """
+    print("Starting database initialization...")
     
-    # 1. Crea las tablas físicamente en university.db
+   # 1. Physical Table Creation
+    # Uses SQLAlchemy metadata to generate tables based on defined models
     Base.metadata.create_all(bind=engine)
     print("Tablas creadas correctamente.")
 
-    # 2. Insertar registros de prueba (Seed)
+    # 2. Database Seeding
+    # Creates a new session to interact with the database
     Session = sessionmaker(bind=engine)
     db = Session()
 
     try:
-        # Verificar si ya existen estudiantes para no duplicar
+        # Check if the database is empty to prevent duplicate entries
         if db.query(Student).count() == 0:
             print("Insertando registros de prueba...")
+
+            # List of Student objects to be inserted as initial data
             test_students = [
                 Student(first_name="John", last_name="Doe", email="john.doe@university.edu", 
                         major="Computer Science", semester=5, gpa=3.8, enrollment_date=date(2022, 8, 15)),
@@ -45,26 +54,18 @@ def run_init():
                         major="Math", semester=4, gpa=2.8, enrollment_date=date(2022, 2, 14)),
                 Student(first_name="Anna", last_name="Taylor", email="anna.t@university.edu", 
                         major="Chemistry", semester=6, gpa=4.0, enrollment_date=date(2021, 8, 12)),
-                Student(first_name="David", last_name="Miller", email="david.m@university.edu", 
-                        major="CS", semester=7, gpa=3.2, enrollment_date=date(2021, 1, 20)),
-                Student(first_name="Sarah", last_name="White", email="sarah.w@university.edu", 
-                        major="History", semester=1, gpa=3.7, enrollment_date=date(2024, 1, 5)),
-                Student(first_name="Kevin", last_name="Jones", email="kevin.j@university.edu",
-                         major="Engineering", semester=9, gpa=2.5, enrollment_date=date(2020, 1, 15)),
-                Student(first_name="Laura", last_name="Hall", email="laura.h@university.edu", 
-                        major="Engineering", semester=10, gpa=3.6, enrollment_date=date(2020, 1, 15)),
-                # ... Agrega los otros 8 aquí
             ]
+            # Bulk insert all student records
             db.add_all(test_students)
-            db.commit()
-            print("10 registros insertados con éxito.")
+            db.commit() # Save changes to university.db
+            print("Records inserted successfully.")
         else:
-            print("La base de datos ya tiene información.")
+            print("Database already contains data. Skipping seeding.")
     except Exception as e:
-        print(f"Error al insertar datos: {e}")
-        db.rollback()
+        print(f"Error during seeding: {e}")
+        db.rollback() # Undo changes if an error occurs
     finally:
-        db.close()
+        db.close() # Ensure the connection is always closed
 
 if __name__ == "__main__":
     run_init()
