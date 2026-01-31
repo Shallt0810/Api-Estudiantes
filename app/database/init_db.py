@@ -1,0 +1,70 @@
+import sys
+import os
+
+# Esto asegura que Python encuentre la carpeta 'app'
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from app.database.db_config import engine, Base
+from app.models.student import Student # ¡ESTA LÍNEA ES VITAL!
+from sqlalchemy.orm import sessionmaker
+from datetime import date
+
+def run_init():
+    print("Iniciando creación de base de datos...")
+    
+    # 1. Crea las tablas físicamente en university.db
+    Base.metadata.create_all(bind=engine)
+    print("Tablas creadas correctamente.")
+
+    # 2. Insertar registros de prueba (Seed)
+    Session = sessionmaker(bind=engine)
+    db = Session()
+
+    try:
+        # Verificar si ya existen estudiantes para no duplicar
+        if db.query(Student).count() == 0:
+            print("Insertando registros de prueba...")
+            test_students = [
+                Student(first_name="John", last_name="Doe", email="john.doe@university.edu", 
+                        major="Computer Science", semester=5, gpa=3.8, enrollment_date=date(2022, 8, 15)),
+                Student(first_name="Jane", last_name="Smith", email="jane.smith@university.edu", 
+                        major="Biology", semester=3, gpa=3.9, enrollment_date=date(2023, 1, 10)),
+                Student(first_name="Samuel", last_name="Bonilla", email="sam0810@university.edu", 
+                        major="Computer Science", semester=7, gpa=2, enrollment_date=date(2022, 8, 15)),
+                Student(first_name="Liana", last_name="Agui", email="liabo@university.edu", 
+                        major="Administration", semester=11, gpa=4, enrollment_date=date(2020, 2, 17)),
+                Student(first_name="Richard", last_name="Monte", email="apari@university.edu", 
+                        major="Medicine", semester=6, gpa=2.8, enrollment_date=date(2022, 2, 14)),
+                Student(first_name="Jane", last_name="Smith", email="jane.s@university.edu", 
+                        major="Biology", semester=3, gpa=3.9, enrollment_date=date(2023, 1, 10)),
+                Student(first_name="Mike", last_name="Brown", email="mike.b@university.edu", 
+                        major="Physics", semester=8, gpa=3.1, enrollment_date=date(2020, 9, 5)),
+                Student(first_name="Emily", last_name="Davis", email="emily.d@university.edu", 
+                        major="CS", semester=2, gpa=3.5, enrollment_date=date(2023, 8, 20)),
+                Student(first_name="Chris", last_name="Wilson", email="chris.w@university.edu", 
+                        major="Math", semester=4, gpa=2.8, enrollment_date=date(2022, 2, 14)),
+                Student(first_name="Anna", last_name="Taylor", email="anna.t@university.edu", 
+                        major="Chemistry", semester=6, gpa=4.0, enrollment_date=date(2021, 8, 12)),
+                Student(first_name="David", last_name="Miller", email="david.m@university.edu", 
+                        major="CS", semester=7, gpa=3.2, enrollment_date=date(2021, 1, 20)),
+                Student(first_name="Sarah", last_name="White", email="sarah.w@university.edu", 
+                        major="History", semester=1, gpa=3.7, enrollment_date=date(2024, 1, 5)),
+                Student(first_name="Kevin", last_name="Jones", email="kevin.j@university.edu",
+                         major="Engineering", semester=9, gpa=2.5, enrollment_date=date(2020, 1, 15)),
+                Student(first_name="Laura", last_name="Hall", email="laura.h@university.edu", 
+                        major="Engineering", semester=10, gpa=3.6, enrollment_date=date(2020, 1, 15)),
+                # ... Agrega los otros 8 aquí
+            ]
+            db.add_all(test_students)
+            db.commit()
+            print("10 registros insertados con éxito.")
+        else:
+            print("La base de datos ya tiene información.")
+    except Exception as e:
+        print(f"Error al insertar datos: {e}")
+        db.rollback()
+    finally:
+        db.close()
+
+if __name__ == "__main__":
+    run_init()
