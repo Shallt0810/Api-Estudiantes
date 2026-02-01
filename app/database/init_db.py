@@ -20,7 +20,7 @@ def run_init():
    # 1. Physical Table Creation
     # Uses SQLAlchemy metadata to generate tables based on defined models
     Base.metadata.create_all(bind=engine)
-    print("Tablas creadas correctamente.")
+    print("Base creates succesfully")
 
     # 2. Database Seeding
     # Creates a new session to interact with the database
@@ -30,7 +30,7 @@ def run_init():
     try:
         # Check if the database is empty to prevent duplicate entries
         if db.query(Student).count() == 0:
-            print("Insertando registros de prueba...")
+            print("Interting record for test...")
 
             # List of Student objects to be inserted as initial data
             test_students = [

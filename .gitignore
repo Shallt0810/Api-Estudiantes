@@ -1,3 +1,4 @@
+# Essential exclusion files
 # Virtual environment
 venv/
 .env
