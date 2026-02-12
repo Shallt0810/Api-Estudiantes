@@ -6,7 +6,7 @@ import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from app.database.db_config import engine, Base
-from app.models.student import Student # ¡ESTA LÍNEA ES VITAL!
+from app.models.student import Student
 from sqlalchemy.orm import sessionmaker
 from datetime import date
 
